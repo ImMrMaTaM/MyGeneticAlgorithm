@@ -1,6 +1,6 @@
 import numpy as np
 from ypstruct import structure
-from gaCore import prob_Boltzmann, crossover, mutate, apply_bound, roulette_wheel_selection
+from gaCore import population_constraint_violation, prob_Boltzmann, crossover, mutate, apply_bound, roulette_wheel_selection
 
 def run(problem, params):
 
@@ -9,6 +9,9 @@ def run(problem, params):
     nvar = problem.nvar
     varmin = problem.varmin
     varmax = problem.varmax
+    lin_lhs = problem.lin_lhs
+    lin_rhs = problem.lin_rhs
+    nonlinear = problem.nonlinear
 
     # EXTRACT PROBLEM PARAMETERS
     maxrep = params.maxrep
@@ -25,11 +28,22 @@ def run(problem, params):
     gamma = params.gamma
     mu = params.mu
     sigma = params.sigma
+
+
+
+
+
+
+
+
     
     # INDIVIDUAL'S TEMPLATE
     empty_individual = structure()
     empty_individual.position = None
+    empty_individual.violation = None
+    empty_individual.valid = True
     empty_individual.cost = None
+    empty_individual.fitness = None
 
     # OUTPUTS' TEMPLATES
     costs = np.zeros([maxit,maxrep])
@@ -44,7 +58,7 @@ def run(problem, params):
     
         # BEST INDIVIDUAL TEMPLATE FOUND AT CURRENT ITERATION
         bestsol = empty_individual.deepcopy() # best individual found at current iteration
-        bestsol.cost = np.inf # set best solution's cost to be plus infinity
+        bestsol.cost = np.inf # set best solution's fitness to be plus infinity
 
         # ARRAY WITH BEST INDIVIDUAL OF EACH ITERATION FOR CURRENT REPETITION
         bestcost = np.empty(maxit) # array with best cost found at each iteration
@@ -55,6 +69,10 @@ def run(problem, params):
         for i in range(npop):
             pop[i].position = np.random.uniform(varmin, varmax, nvar) # fill population with npop random individuals
             pop[i].cost = costfunc(pop[i].position) # calculate the cost of all individuals in the population
+
+
+
+
             if pop[i].cost < bestsol.cost:
                 bestsol = pop[i].deepcopy() # calculate the actual best solution of the initialized population
                 bestcost[0] = pop[i].cost
@@ -66,6 +84,7 @@ def run(problem, params):
     
     #################################### ITERATIONS ####################################
         for it in range(1, maxit):
+            
 
             # CHILDREN GENERATION LOOP
 

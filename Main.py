@@ -21,12 +21,21 @@ def cost(x):
     # return np.sin(3*np.pi*x[0])**2+(x[0]-1)**2*(1+np.sin(3*np.pi*x[1])*np.sin(3*np.pi*x[1]))+(x[1]-1)*(x[1]-1)*(1+np.sin(2*np.pi*x[1])*np.sin(2*np.pi*x[1])) # Levy function 13 [-10,10] YES
     # return (x[1] - (5.1/(4*np.pi**2))*x[0]**2 + (5/np.pi)*x[0] - 6)**2 + 10*(1-(1/(8*np.pi)))*np.cos(x[0]) + 10 # Branin function [-5, 0] [10,15] YES
 
+# CONSTRAINTS (form x^2+y^2-a <= 0)
+def constraint_functions(x):
+    const1 = x[0] ** 2 + x[1] ** 2  - 100
+    const2 = x[0] + x[1] + 50
+    return const1, const2
+
+
 # PROBLEM DEFINITION
 problem = structure() # define the problem as a structure variable
 problem.costfunc = cost # define the problem's cost function
 problem.nvar = 2 # define number of variables in search space
 problem.varmin = [-600, -600] # lower bound of variables
 problem.varmax = [600,600] # upper bound of variables
+problem.constraints = constraint_functions # define the problem's nonlinear constraints
+
 
 # GA PARAMETERS
 params = structure()
