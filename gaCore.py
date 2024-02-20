@@ -1,6 +1,8 @@
 import numpy as np
 from ypstruct import structure
 
+############################################## FUNCTIONS ##############################################
+
 # PARENTING PROBABILITY
 def prob_Boltzmann(pop,beta):
     costs = np.array([x.cost for x in pop])

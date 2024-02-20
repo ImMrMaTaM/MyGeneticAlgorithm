@@ -33,7 +33,6 @@ def run(problem, params):
 
     # OUTPUTS' TEMPLATES
     costs = np.zeros([maxit,maxrep])
- 
     POS = np.zeros([maxrep,nvar]) # array with best position found at each repetition
     COST = np.zeros(maxrep) # array with best cost found at each repetition
     IT = np.zeros([maxit, maxrep]) # array with number of iterations performed at each repetition
@@ -165,12 +164,8 @@ def run(problem, params):
         COST[rep] = costfunc(POS[rep])
         n = np.count_nonzero(np.all((np.around(POS[0:rep], decimals = digits) == np.around(bestsol.position, decimals = digits)), axis = 1))
 
-        
-
         if n == stoprep:
             break
-
-
 
     ################################################################################
 
@@ -183,5 +178,3 @@ def run(problem, params):
     out.POS = POS[0:n_rep]
     out.COST = COST[0:n_rep]
     return out
-
-
