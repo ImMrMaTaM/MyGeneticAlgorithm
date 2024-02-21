@@ -1,6 +1,6 @@
 import numpy as np
 from ypstruct import structure
-from gaCore import population_constraint_violation, prob_Boltzmann, crossover, mutate, apply_bound, roulette_wheel_selection
+from gaCore import initialize_population, constraints_violation, validity, worst_valid_cost_funct, fitness_funct, prob_Boltzmann, roulette_wheel_selection, crossover, mutate, apply_bound
 
 def run(problem, params):
 
@@ -9,9 +9,8 @@ def run(problem, params):
     nvar = problem.nvar
     varmin = problem.varmin
     varmax = problem.varmax
-    lin_lhs = problem.lin_lhs
-    lin_rhs = problem.lin_rhs
-    nonlinear = problem.nonlinear
+    constraints = problem.constraints
+    constraints_toll = problem.constraints_toll
 
     # EXTRACT PROBLEM PARAMETERS
     maxrep = params.maxrep
@@ -19,7 +18,7 @@ def run(problem, params):
     digits = params.digits
     maxit = params.maxit
     stopit = params.stopit
-    tollcost = params.tollcost
+    tollfitness = params.tollfitness
     tollpos = params.tollpos
     npop = params.npop
     beta = params.beta
@@ -29,26 +28,18 @@ def run(problem, params):
     mu = params.mu
     sigma = params.sigma
 
-
-
-
-
-
-
-
-    
     # INDIVIDUAL'S TEMPLATE
     empty_individual = structure()
     empty_individual.position = None
     empty_individual.violation = None
-    empty_individual.valid = True
     empty_individual.cost = None
+    empty_individual.valid = True
     empty_individual.fitness = None
 
     # OUTPUTS' TEMPLATES
-    costs = np.zeros([maxit,maxrep])
+    fitness = np.zeros([maxit,maxrep])
     POS = np.zeros([maxrep,nvar]) # array with best position found at each repetition
-    COST = np.zeros(maxrep) # array with best cost found at each repetition
+    FITNESS = np.zeros(maxrep) # array with best fitness found at each repetition
     IT = np.zeros([maxit, maxrep]) # array with number of iterations performed at each repetition
     n_rep = 0 # number of performed repetitions
 
@@ -58,26 +49,11 @@ def run(problem, params):
     
         # BEST INDIVIDUAL TEMPLATE FOUND AT CURRENT ITERATION
         bestsol = empty_individual.deepcopy() # best individual found at current iteration
-        bestsol.cost = np.inf # set best solution's fitness to be plus infinity
-
-        # ARRAY WITH BEST INDIVIDUAL OF EACH ITERATION FOR CURRENT REPETITION
-        bestcost = np.empty(maxit) # array with best cost found at each iteration
         bestpos = np.empty([maxit,nvar]) # array with best position found at each iteration
 
+
         # INITIALIZE RANDOM POPULATION
-        pop = empty_individual.repeat(npop)
-        for i in range(npop):
-            pop[i].position = np.random.uniform(varmin, varmax, nvar) # fill population with npop random individuals
-            pop[i].cost = costfunc(pop[i].position) # calculate the cost of all individuals in the population
-
-
-
-
-            if pop[i].cost < bestsol.cost:
-                bestsol = pop[i].deepcopy() # calculate the actual best solution of the initialized population
-                bestcost[0] = pop[i].cost
-                bestpos[0] = pop[i].position
-                costs[0,rep] = bestcost[0]
+        pop = initialize_population(empty_individual, npop, varmin, varmax, nvar, costfunc, constraints_toll, constraints)
     
         # INITIALIZE ITERATION QUITTER
         it_check = 0
@@ -112,27 +88,37 @@ def run(problem, params):
                 c1 = mutate(c1, mu, sigma)
                 c2 = mutate(c2, mu, sigma)
 
+
+
+                ############################### MODIFY HERE #################################### 
                 # 6 BOUNDARIES
                 apply_bound(c1, varmin, varmax)
                 apply_bound(c2, varmin, varmax)
+                ############################### MODIFY HERE ####################################
 
-                # 7.1 EVALUATE FIRST OFFSPRING
+
+                # 7 EVALUATE OFFSPRING (violation, cost, validity, fitness)
+                worst_valid_child_cost = 0
+                c1.violation = constraints_violation(c1.position, constraints)
                 c1.cost = costfunc(c1.position)
-                if c1.cost < bestsol.cost:
-                    bestsol = c1.deepcopy() # update best individual
-
-                # 7.2 EVALUATE SECOND OFFSPRING
+                c1.valid = validity(c1.violation, constraints_toll)
+                worst_valid_child_cost = worst_valid_cost_funct(worst_valid_child_cost, c1.valid, c1.cost)
+                c2.violation = constraints_violation(c2.position, constraints)
                 c2.cost = costfunc(c2.position)
-                if c2.cost < bestsol.cost:
-                    bestsol = c2.deepcopy() # update best individual
+                c2.valid = validity(c2.violation, constraints_toll)
+                worst_valid_child_cost = worst_valid_cost_funct(worst_valid_child_cost, c2.valid, c2.cost)
 
                 # 8 GENERATE POPULATION OF CHILDREN
                 popc.append(c1)
                 popc.append(c2)
+            
+            for k in range (len(popc)):
+                popc[k].fitness = fitness_funct(popc[k].cost, popc[k].violation, popc[k].valid, worst_valid_child_cost)
         
             # MERGE
             pop += popc # merge
 
+            """"
             # ELIMINATE DUPLICATES
             positions = np.array([x.position for x in pop])
             positions = np.unique(positions, axis = 0)
@@ -151,26 +137,29 @@ def run(problem, params):
                 new_pop[a].position = positions[a]
                 new_pop[a].cost = costfunc(new_pop[a].position)
                 pop = new_pop
+            """
 
             # SORT
-            pop = sorted(pop, key=lambda x: x.cost)
+            pop = sorted(pop, key=lambda x: x.fitness)
 
             # SELECT
             pop = pop[0:npop]
 
-            bestcost[it] = bestsol.cost # store best cost of iteration in the array
-            bestpos[it] = bestsol.position # store best position of iteration in the array
-            costs[it,rep] = bestcost[it] 
+            # STORE BEST SOLUTION
+            bestsol = pop[0].deepcopy() # update best individual
+            bestpos[it] = bestsol.position
+            fitness[it,rep] = bestsol.fitness 
             IT[it,rep] = it
 
             # PRINT ITERATION'S INFORMATIONS (# ITERATION AND BEST COST)
-            print("Iteration {}:  Best Cost = {}  Best Position = {}".format(it, bestcost[it], bestpos[it]))
+            print("Iteration {}:  Best Fitness value = {}  Best Position = {}".format(it, bestsol.fitness, bestsol.position))
 
             # CHECK FOR OPTIMUM REPETITION 
-            diffcost = np.abs(bestcost[it]-bestcost[it-1])
-            diffpos = np.abs(np.sum((bestpos[it]-bestpos[it-1])))
+            
+            diff_fitness = np.abs(fitness[it,rep] - fitness[it-1,rep])
+            diff_pos = np.abs(np.sum((bestpos[it]-bestpos[it-1])))
 
-            if diffcost < tollcost and diffpos < tollpos:
+            if diff_fitness < tollfitness and diff_pos < tollpos:
                 it_check += 1
             else: 
                 it_check = 0
@@ -180,9 +169,8 @@ def run(problem, params):
 
         n_rep += 1
         POS[rep] = bestsol.position
-        COST[rep] = costfunc(POS[rep])
+        FITNESS[rep] = bestsol.fitness
         n = np.count_nonzero(np.all((np.around(POS[0:rep], decimals = digits) == np.around(bestsol.position, decimals = digits)), axis = 1))
-
         if n == stoprep:
             break
 
@@ -191,9 +179,8 @@ def run(problem, params):
     # OUTPUT
     out = structure()
     out.n_rep = n_rep
-
-    out.costs = costs
+    out.fitness = fitness
     out.IT = IT
     out.POS = POS[0:n_rep]
-    out.COST = COST[0:n_rep]
+    out.FITNESS = FITNESS[0:n_rep]
     return out
