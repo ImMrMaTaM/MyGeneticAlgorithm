@@ -9,7 +9,7 @@ import ga
 # COST FUNCTION TO MINIMIZE
 def cost(x): 
 
-    return x[0]**2 + x[1]**2
+    return 5.3578547*x[2]**2 + 0.8356891*x[0]*x[4] + 37.293239*x[0] - 40792.141
 
     # return -20*np.exp(-0.2*np.sqrt(0.5*(x[0]**2+x[1]**2))) - np.exp(0.5*(np.cos(2*np.pi*x[0])+np.cos(2*np.pi*x[1]))) + np.e + 20 # Akley function YES
     # return 100*np.sqrt(np.abs(x[1]-0.01*x[0]**2)) + 0.01*np.abs(x[0]+10) # Buckin function NO [-15,-3] [-5,3]
@@ -25,20 +25,23 @@ def cost(x):
 
 # CONSTRAINTS (form x^2+y^2-a <= 0)
 def constraint_functions(x):
-    const1 = x[0]**2 - 1
-    const2 = x[0] + (x[1]-0.5)**2 + (1/3)
-    const3 = x[1] - x[0] - 2
-    return const1, const2, const3
+    const1 = 85.334407 + 0.0056858*x[1]*x[4] + 0.0006262*x[0]*x[3] - 0.0022053*x[2]*x[4] - 92
+    const2 = -85.334407 - 0.0056858*x[1]*x[4] - 0.0006262*x[0]*x[3] + 0.0022053*x[2]*x[4]
+    const3 = 80.51249 + 0.0071317*x[1]*x[4] + 0.0029955*x[0]*x[1] + 0.0021813*x[2]**2 - 110
+    const4 = -80.51249 - 0.0071317*x[1]*x[4] - 0.0029955*x[0]*x[1] - 0.0021813*x[2]**2 + 90
+    const5 = 9.300961 + 0.0047026*x[2]*x[4] + 0.0012547*x[0]*x[2] + 0.0019085*x[2]*x[3] - 25
+    const6 = -9.300961 - 0.0047026*x[2]*x[4] - 0.0012547*x[0]*x[2] - 0.0019085*x[2]*x[3] + 20
+    return const1, const2, const3, const4, const5, const6
 
 
 # PROBLEM DEFINITION
 problem = structure() # define the problem as a structure variable
 problem.costfunc = cost # define the problem's cost function
-problem.nvar = 2 # define number of variables in search space
-problem.varmin = [-2, -2] # lower bound of variables
-problem.varmax = [2,2] # upper bound of variables
+problem.nvar = 5 # define number of variables in search space
+problem.varmin = [78, 33, 27, 27, 27] # lower bound of variables
+problem.varmax = [102, 45, 45, 45, 45] # upper bound of variables
 problem.constraints = constraint_functions # define the problem's nonlinear constraints
-problem.constraints_toll = 1e-4
+problem.constraints_toll = 1e-6 # define the problem's constraints tollerance
 
 
 # GA PARAMETERS
@@ -46,15 +49,15 @@ params = structure()
 
 params.maxrep = 30 # maximum number of repetitions
 params.stoprep = 10 # number of same solutions to stop repeating 
-params.digits = 3 # accuracy of digits for a position being the same
+params.digits = 6 # accuracy of digits for a position being the same
 
 params.maxit = 300 # maximum number of iterations 
-params.stopit = 20 # number of repetitions of same optimum point before breaking
-params.tollfitness = 1e-4 # fitness difference tollerance for breaking iterations
-params.tollpos = 1e-4 # position difference tollerance for breaking iterations
+params.stopit = 50 # number of repetitions of same optimum point before breaking
+params.tollfitness = 1e-6 # fitness difference tollerance for breaking iterations
+params.tollpos = 1e-6 # position difference tollerance for breaking iterations
 
 params.npop = 100 # size of initial population
-params.pc = 2 # proportion of children to main population
+params.pc = 3 # proportion of children to main population
 params.beta = 0.3 # Boltzman constant for parent selection probability
 params.gamma = 0.8 # parameter for crossover
 params.mu = 0.1 # mutation threshold
