@@ -32,7 +32,9 @@ def validity(violation, constraints_toll):
 
 # CALCULATE WORST VALID COST
 def worst_valid_cost_funct(worst_valid_cost, valid, cost):
-    if valid == True:
+    if valid == False:
+        return worst_valid_cost
+    elif valid == True:
         if cost > worst_valid_cost:
             worst_valid_cost = cost
     return worst_valid_cost
@@ -42,7 +44,7 @@ def worst_valid_cost_funct(worst_valid_cost, valid, cost):
 def fitness_funct(cost, violation, valid, worst_valid_cost):
     if valid == False:
         fitness = np.maximum(worst_valid_cost + violation, cost)
-    else:
+    elif valid == True:
         fitness = cost
     return fitness
 

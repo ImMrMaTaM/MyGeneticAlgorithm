@@ -9,21 +9,21 @@ import Test_functions_constrained as tfc
 
 # COST FUNCTION TO MINIMIZE
 def cost(x): 
-    return tfc.G04_function(x) 
+    return tfc.G10_function(x) 
 
 # CONSTRAINTS (form x^2+y^2-a <= 0)
 def constraint_functions(x):
-    return tfc.G04_constraints(x)
+    return tfc.G10_constraints(x)
 
 
 # PROBLEM DEFINITION
 problem = structure() # define the problem as a structure variable
 problem.costfunc = cost # define the problem's cost function
-problem.nvar = tfc.nvar_G04 # define number of variables in search space
-problem.varmin = tfc.varmin_G04 # lower bound of variables
-problem.varmax = tfc.varmax_G04 # upper bound of variables
+problem.nvar = tfc.nvar_G10 # define number of variables in search space
+problem.varmin = tfc.varmin_G10 # lower bound of variables
+problem.varmax = tfc.varmax_G10 # upper bound of variables
 problem.constraints = constraint_functions # define the problem's nonlinear constraints
-problem.constraints_toll = 1e-8 # define the problem's constraints tollerance
+problem.constraints_toll = 1e-10 # define the problem's constraints tollerance
 
 
 # GA PARAMETERS
@@ -32,7 +32,7 @@ params.maxrep = 1 # maximum number of repetitions
 params.stoprep = 3 # number of same solutions to stop repeating 
 params.digits = 6 # accuracy of digits for a position being the same
 params.maxit = 500 # maximum number of iterations 
-params.stopit = 50 # number of repetitions of same optimum point before breaking
+params.stopit = 100 # number of repetitions of same optimum point before breaking
 params.tollfitness = 1e-6 # fitness difference tollerance for breaking iterations
 params.tollpos = 1e-6 # position difference tollerance for breaking iterations
 params.npop = 300 # size of initial population

@@ -1,4 +1,9 @@
 import numpy as np
+# When dealing with an equality constraint: write it as two inequality constraints:
+eq_constraint_toll = 0.01
+# h(x) = 0  ->  h(x) - 0.01 <= 0 and -0.01 - h(x) <= 0
+
+
 ########################################### G01 ###########################################
 def G01_function(x):
     return 5*(x[0]+x[1]+x[2]+x[3]) - \
@@ -48,8 +53,8 @@ def G03_function(x):
     return -(np.sqrt(10))**10 * np.prod(x)
 
 def G03_constraints(x):
-    const1 = np.sum(np.power(x,2)) - 1.01
-    const2 = 0.99 - np.sum(np.power(x,2))
+    const1 = np.sum(np.power(x,2)) - 1 - eq_constraint_toll
+    const2 = - np.sum(np.power(x,2)) + 1 - eq_constraint_toll
     return const1, const2
 
 nvar_G03 = 10
@@ -78,3 +83,148 @@ varmax_G04 = [102,45,45,45,45]
 # YES
 
 ########################################### G05 ###########################################
+
+def G05_function(x):
+    return 3*x[0] + 0.000001*x[0]**3 + 2*x[1] + (0.000002/3)*x[1]**3
+
+def G05_constraints(x):
+    const1 = -x[3] + x[2] - 0.55
+    const2 = -x[2] + x[3] - 0.55
+    const3 = 1000*np.sin(-x[2]-0.25) + 1000*np.sin(-x[3]-0.25) + 894.8 - x[0] - eq_constraint_toll
+    const4 = - 1000*np.sin(-x[2]-0.25) - 1000*np.sin(-x[3]-0.25) - 894.8 + x[0] - eq_constraint_toll
+    const5 = 1000*np.sin(x[2]-0.25) + 1000*np.sin(x[2]-x[3]-0.25) + 894.8 - x[1] - eq_constraint_toll
+    const6 = -1000*np.sin(x[2]-0.25) - 1000*np.sin(x[2]-x[3]-0.25) - 894.8 + x[1] - eq_constraint_toll
+    const7 = 1000*np.sin(x[3]-0.25) + 1000*np.sin(x[3]-x[2]-0.25) + 1294.8 - eq_constraint_toll
+    const8 = -1000*np.sin(x[3]-0.25) - 1000*np.sin(x[3]-x[2]-0.25) - 1294.8 - eq_constraint_toll
+    return const1, const2, const3, const4, const5, const6, const7, const8
+
+nvar_G05 = 4
+varmin_G05 = [0,0,-0.55,-0.55]
+varmax_G05 = [1200,1200,0.55,0.55]
+
+# NO (difficult to work with multiple equality constraints, as no feasible answer is found)
+
+########################################### G06 ###########################################
+def G06_function(x):
+    return (x[0]-10)**3 + (x[1]-20)**3
+
+def G06_constraints(x):
+    const1 = -(x[0]-5)**2 - (x[1]-5)**2 + 100 
+    const2 = (x[0]-6)**2 + (x[1]-5)**2 - 82.81
+    return const1, const2
+
+nvar_G06 = 2
+varmin_G06 = [13,0]
+varmax_G06 = [100,100]
+
+# YES (could have better final convergence)
+
+########################################### G07 ###########################################
+def G07_function(x):
+    return x[0]**2 + x[1]**2 + x[0]*x[1] - 14*x[0] - 16*x[1] + (x[2]-10)**2\
+        + 4*(x[3]-5)**2 + (x[4]-3)**2 + 2*(x[5]-1)**2 + 5*x[6]**2\
+            + 7*(x[7]-11)**2 + 2*(x[8]-10)**2 + (x[9]-7)**2 + 45
+
+def G07_constraints(x):
+    const1 = -105 + 4*x[0] + 5*x[1] - 3*x[6] + 9*x[7]
+    const2 = 10*x[0] - 8*x[1] - 17*x[6] + 2*x[7]
+    const3 = -8*x[0] + 2*x[1] + 5*x[8] - 2*x[9] - 12
+    const4 = 3*(x[0]-2)**2 + 4*(x[1]-3)**2 + 2*x[2]**2 - 7*x[3] - 120
+    const5 = 5*x[0]**2 + 8*x[1] + (x[2]-6)**2 - 2*x[3] - 40
+    const6 = x[0]**2 + 2*(x[1]-2)**2 - 2*x[0]*x[1] + 14*x[4] - 6*x[5]
+    const7 = 0.5*(x[0]-8)**2 + 2*(x[1]-4)**2 + 3*x[4]**2 - x[5] - 30
+    const8 = -3*x[0] + 6*x[1] + 12*(x[8]-8) - 7*x[9]
+    return const1, const2, const3, const4, const5, const6, const7, const8
+
+nvar_G07 = 10
+varmin_G07 = -10
+varmax_G07 = 10
+
+# YES (could have better final convergence)
+
+########################################### G08 ###########################################
+def G08_function(x):
+    return -(np.sin(2*np.pi*x[0])**3 * np.sin(2*np.pi*x[1]))/((x[0]**3)*(x[0]+x[1]))
+
+def G08_constraints(x):
+    const1 = x[0]**2 - x[1] + 1
+    const2 = 1 - x[0] + (x[1]-4)**2
+    return const1, const2
+
+nvar_G08 = 2
+varmin_G08 = 0
+varmax_G08 = 10
+
+# NO (problem when dividing by zero)
+
+########################################### G09 ###########################################
+def G09_function(x):
+    return (x[0]-10)**2 + 5*(x[1]-12)**2 + x[2]**4 + 3*(x[3]-11)**2 +\
+        10*x[4]**6 + 7*x[5]**2 + x[6]**4 - 4*x[5]*x[6] - 10*x[5] - 8*x[6]
+
+def G09_constraints(x):
+    const1 = -127 + 2*x[0]**2 + 3*x[1]**4 + x[2] + 4*x[3]**2 + 5*x[4]
+    const2 = -282 + 7*x[0] + 3*x[1] + 10*x[2]**2 + x[3] - x[4]
+    const3 = -196 + 23*x[0] + x[1]**2 + 6*x[5]**2 - 8*x[6]
+    const4 = 4*x[0]**2 + x[1]**2 - 3*x[0]*x[1] + 2*x[2]**2 + 5*x[5] - 11*x[6]
+    return const1, const2, const3, const4
+
+nvar_G09 = 7
+varmin_G09 = -10
+varmax_G09 = 10
+
+# YES (could have better final convergence)
+
+########################################### G10 ###########################################
+def G10_function(x):
+    return x[0] + x[1] + x[2]
+
+def G10_constraints(x):
+    const1 = -1 + 0.0025*(x[3]+x[5])
+    const2 = -1 + 0.0025*(x[4]+x[6]-x[3])
+    const3 = -1 + 0.01*(x[7]-x[4])
+    const4 = -x[0]*x[5] + 833.33252*x[3] + 100*x[0] - 83333.333
+    const5 = -x[1]*x[6] + 1250*x[4] + x[1]*x[3] - 1250*x[3]
+    const6 = -x[2]*x[7] + 1250000 + x[2]*x[4] - 2500*x[4]
+    return const1, const2, const3, const4, const5, const6
+
+nvar_G10 = 8
+varmin_G10 = [100,1000,1000,10,10,10,10,10]
+varmax_G10 = [10000,10000,10000,1000,1000,1000,1000,1000]
+
+# NO (can't find feasible region)
+
+########################################### G11 ###########################################
+def G11_function(x):
+    return x[0]**2 + (x[1]-1)**2
+
+def G11_constraints(x):
+    const1 = x[1] - x[0]**2 - eq_constraint_toll
+    const2 = x[0]**2 - x[1] - eq_constraint_toll
+    return const1, const2
+
+nvar_G11 = 2
+varmin_G11 = [-1,-1]
+varmax_G11 = [1,1]
+
+# YES 
+
+########################################### G12 ###########################################
+
+
+########################################### G13 ###########################################
+def G13_function(x):
+    return np.exp(x[0]*x[1]*x[2]*x[3]*x[4])
+
+def G13_constraints(x):
+    const1 = x[0]**2 + x[1]**2 + x[2]**2 + x[3]**2 + x[4]**2 - 10 -  eq_constraint_toll
+    const2 = - x[0]**2 - x[1]**2 - x[2]**2 - x[3]**2 - x[4]**2 + 10 -  eq_constraint_toll
+    const3 = x[1]*x[2] - 5*x[3]*x[4] - eq_constraint_toll
+    const4 = - x[1]*x[2] + 5*x[3]*x[4] - eq_constraint_toll
+    const5 = x[0]**3 + x[1]**3 + 1 - eq_constraint_toll
+    const6 = - x[0]**3 - x[1]**3 - 1 - eq_constraint_toll
+    return const1, const2, const3 ,const4, const5, const6
+
+nvar_G13 = 5
+varmin_G13 = [-2.3, -2.3, -3.2, -3.2, -3.2]
+varmax_G13 = [2.3, 2.3, 3.2, 3.2, 3.2]

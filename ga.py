@@ -33,7 +33,7 @@ def run(problem, params):
     empty_individual.position = None
     empty_individual.violation = None
     empty_individual.cost = None
-    empty_individual.valid = True
+    empty_individual.valid = None
     empty_individual.fitness = None
 
     # OUTPUTS' TEMPLATES
@@ -61,9 +61,9 @@ def run(problem, params):
             pop[i].violation = constraints_violation(pop[i].position, constraints)
             pop[i].cost = costfunc(pop[i].position)
             pop[i].valid = validity(pop[i].violation, constraints_toll)
-            worst_valid_cost = worst_valid_cost_funct(worst_valid_cost, pop[i].valid, pop[i].cost)
         
         for j in range(npop):
+            worst_valid_cost = worst_valid_cost_funct(worst_valid_cost, pop[j].valid, pop[j].cost)
             pop[j].fitness = fitness_funct(pop[j].cost, pop[j].violation, pop[j].valid, worst_valid_cost)
     
         # INITIALIZE ITERATION QUITTER
@@ -110,42 +110,20 @@ def run(problem, params):
                 c1.violation = constraints_violation(c1.position, constraints)
                 c1.cost = costfunc(c1.position)
                 c1.valid = validity(c1.violation, constraints_toll)
-                worst_valid_cost = worst_valid_cost_funct(worst_valid_cost, c1.valid, c1.cost)
                 c2.violation = constraints_violation(c2.position, constraints)
                 c2.cost = costfunc(c2.position)
                 c2.valid = validity(c2.violation, constraints_toll)
-                worst_valid_cost = worst_valid_cost_funct(worst_valid_cost, c2.valid, c2.cost)
 
                 # 8 GENERATE POPULATION OF CHILDREN
                 popc.append(c1)
                 popc.append(c2)
-            
-            for k in range (len(popc)):
-                popc[k].fitness = fitness_funct(popc[k].cost, popc[k].violation, popc[k].valid, worst_valid_cost)
         
             # MERGE
             pop += popc # merge
 
-            """"
-            # ELIMINATE DUPLICATES
-            positions = np.array([x.position for x in pop])
-            positions = np.unique(positions, axis = 0)
-
-            leng = np.shape(positions)[0]
-            add = npop+nc-leng
-
-            while add > 0:
-                positions = np.concatenate((positions, np.random.uniform(varmin, varmax, (add,nvar))), axis = 0)
-                positions = np.unique(positions, axis = 0)
-                leng = np.shape(positions)[0]
-                add = npop+nc-leng
-
-            new_pop = empty_individual.repeat(leng)
-            for a in range(leng):
-                new_pop[a].position = positions[a]
-                new_pop[a].cost = costfunc(new_pop[a].position)
-                pop = new_pop
-            """
+            for k in range (len(pop)):
+                worst_valid_cost = worst_valid_cost_funct(worst_valid_cost, pop[k].valid, pop[k].cost)
+                pop[k].fitness = fitness_funct(pop[k].cost, pop[k].violation, pop[k].valid, worst_valid_cost)
 
             # SORT
             pop = sorted(pop, key=lambda x: x.fitness)
@@ -160,7 +138,8 @@ def run(problem, params):
             IT[it,rep] = it
 
             # PRINT ITERATION'S INFORMATIONS (# ITERATION AND BEST COST)
-            print("Iteration {}:  Best Fitness value = {}  Best Position = {}".format(it, bestsol.fitness, bestsol.position))
+            print(worst_valid_cost)
+            print("Iteration {}:  Best Fitness value = {}  Best Position = {}  Valid: {}".format(it, bestsol.fitness, bestsol.position, bestsol.valid))
 
             # CHECK FOR OPTIMUM REPETITION 
             
@@ -181,8 +160,8 @@ def run(problem, params):
         n = np.count_nonzero(np.all((np.around(POS[0:rep], decimals = digits) == np.around(bestsol.position, decimals = digits)), axis = 1))
         if n == stoprep:
             break
-    print(pop)
 
+    print(pop)
     ################################################################################
 
     # OUTPUT
