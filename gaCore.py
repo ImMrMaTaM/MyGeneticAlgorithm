@@ -1,37 +1,24 @@
 import numpy as np
 from ypstruct import structure
-from Constraints import constraint_violation, bound_violation
+
 
 ############################################## FUNCTIONS ##############################################
-
-# INITIALIZE RANDOM POPULATION
-def initialize_population(empty_individual, npop, varmin, varmax, nvar, costfunc, constraints_toll, constraint_functions):
-
-    pop = empty_individual.repeat(npop)
-    worst_valid_cost = 0
-
-    for i in range(npop):
-        pop[i].position = np.random.uniform(varmin, varmax, nvar) # fill population with npop random individuals
-        pop[i].violation = constraints_violation(pop[i].position, constraint_functions)
-        pop[i].cost = costfunc(pop[i].position)
-        pop[i].valid = validity(pop[i].violation, constraints_toll)
-        worst_valid_cost = worst_valid_cost_funct(worst_valid_cost, pop[i].valid, pop[i].cost)
-        
-    for j in range(npop):
-        pop[j].fitness = fitness_funct(pop[j].cost, pop[j].violation, pop[j].valid, worst_valid_cost)
-
-    return pop
-
 
 # CALCULATE VIOLATIONS
 def constraints_violation(x, constraint_functions):
     vals = constraint_functions(x)
-    if len(vals) == 1:
-        return vals[0]
-    res = 0
-    for val in vals:
-        if val > 0:
-            res += val
+    if vals == None:
+        return 0
+    elif type(vals) == np.float64:
+        if vals >= 0:
+            return vals
+        else:
+            return 0
+    else:
+        res = 0
+        for val in vals:
+            if val >= 0:
+                res += val
     return res
 
 
@@ -54,7 +41,7 @@ def worst_valid_cost_funct(worst_valid_cost, valid, cost):
 # CALCULATE FITNESS
 def fitness_funct(cost, violation, valid, worst_valid_cost):
     if valid == False:
-        fitness = worst_valid_cost + violation
+        fitness = np.maximum(worst_valid_cost + violation, cost)
     else:
         fitness = cost
     return fitness

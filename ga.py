@@ -1,6 +1,6 @@
 import numpy as np
 from ypstruct import structure
-from gaCore import initialize_population, constraints_violation, validity, worst_valid_cost_funct, fitness_funct, prob_Boltzmann, roulette_wheel_selection, crossover, mutate, apply_bound
+from gaCore import constraints_violation, validity, worst_valid_cost_funct, fitness_funct, prob_Boltzmann, roulette_wheel_selection, crossover, mutate, apply_bound
 
 def run(problem, params):
 
@@ -53,7 +53,18 @@ def run(problem, params):
 
 
         # INITIALIZE RANDOM POPULATION
-        pop = initialize_population(empty_individual, npop, varmin, varmax, nvar, costfunc, constraints_toll, constraints)
+        pop = empty_individual.repeat(npop)
+        worst_valid_cost = 0
+
+        for i in range(npop):
+            pop[i].position = np.random.uniform(varmin, varmax, nvar) # fill population with npop random individuals
+            pop[i].violation = constraints_violation(pop[i].position, constraints)
+            pop[i].cost = costfunc(pop[i].position)
+            pop[i].valid = validity(pop[i].violation, constraints_toll)
+            worst_valid_cost = worst_valid_cost_funct(worst_valid_cost, pop[i].valid, pop[i].cost)
+        
+        for j in range(npop):
+            pop[j].fitness = fitness_funct(pop[j].cost, pop[j].violation, pop[j].valid, worst_valid_cost)
     
         # INITIALIZE ITERATION QUITTER
         it_check = 0
@@ -88,8 +99,6 @@ def run(problem, params):
                 c1 = mutate(c1, mu, sigma)
                 c2 = mutate(c2, mu, sigma)
 
-
-
                 ############################### MODIFY HERE #################################### 
                 # 6 BOUNDARIES
                 apply_bound(c1, varmin, varmax)
@@ -98,22 +107,21 @@ def run(problem, params):
 
 
                 # 7 EVALUATE OFFSPRING (violation, cost, validity, fitness)
-                worst_valid_child_cost = 0
                 c1.violation = constraints_violation(c1.position, constraints)
                 c1.cost = costfunc(c1.position)
                 c1.valid = validity(c1.violation, constraints_toll)
-                worst_valid_child_cost = worst_valid_cost_funct(worst_valid_child_cost, c1.valid, c1.cost)
+                worst_valid_cost = worst_valid_cost_funct(worst_valid_cost, c1.valid, c1.cost)
                 c2.violation = constraints_violation(c2.position, constraints)
                 c2.cost = costfunc(c2.position)
                 c2.valid = validity(c2.violation, constraints_toll)
-                worst_valid_child_cost = worst_valid_cost_funct(worst_valid_child_cost, c2.valid, c2.cost)
+                worst_valid_cost = worst_valid_cost_funct(worst_valid_cost, c2.valid, c2.cost)
 
                 # 8 GENERATE POPULATION OF CHILDREN
                 popc.append(c1)
                 popc.append(c2)
             
             for k in range (len(popc)):
-                popc[k].fitness = fitness_funct(popc[k].cost, popc[k].violation, popc[k].valid, worst_valid_child_cost)
+                popc[k].fitness = fitness_funct(popc[k].cost, popc[k].violation, popc[k].valid, worst_valid_cost)
         
             # MERGE
             pop += popc # merge
@@ -173,6 +181,7 @@ def run(problem, params):
         n = np.count_nonzero(np.all((np.around(POS[0:rep], decimals = digits) == np.around(bestsol.position, decimals = digits)), axis = 1))
         if n == stoprep:
             break
+    print(pop)
 
     ################################################################################
 
