@@ -8,23 +8,30 @@ import Test_functions_constrained as tfc
 ################################################################################
 
 # COST FUNCTION TO MINIMIZE
-def cost(x): 
-    return tfc.G18_function(x) 
+def cost_function(x): 
+    return -(100 - (x[0]-5)**2 - (x[1]-5)**2 - (x[2]-5)**2)/100
 
 # CONSTRAINTS (form x^2+y^2-a <= 0)
 def constraint_functions(x):
-    return tfc.G18_constraints(x)
-
+    const = (x[0]-x[3])**2 + (x[1]-x[4])**2 + (x[2]-x[5])**2 - 0.0625
+    return const
 
 # PROBLEM DEFINITION
 problem = structure() # define the problem as a structure variable
-problem.costfunc = cost # define the problem's cost function
-problem.nvar = tfc.nvar_G18 # define number of variables in search space
-problem.varmin = tfc.varmin_G18 # lower bound of variables
-problem.varmax = tfc.varmax_G18 # upper bound of variables
+problem.costfunc = cost_function # define the problem's cost function
 problem.constraints = constraint_functions # define the problem's nonlinear constraints
 problem.constraints_toll = 1e-10 # define the problem's constraints tollerance
-
+problem.nvar_cont = 3 # define number of continuous variables in search space
+problem.nvar_disc = 3 # define number of discrete variables in search space
+problem.nvar = problem.nvar_cont + problem.nvar_disc # define total number of variables
+problem.index_cont = [0, 1, 2] # define the indexes of continuous variables
+problem.index_disc = [3, 4, 5] # define the indexes of discrete variables
+problem.varmin_cont = [0, 0, 0] # lower bound of continuous variables
+problem.varmax_cont = [10, 10, 10]# upper bound of continuous variables
+problem.varmin_disc = [1, 1, 1] # lower bound of discrete variables
+problem.varmax_disc = [9, 9, 9] # upper bound of discrete variables
+problem.varmin = problem.varmin_cont + problem.varmin_disc # lower bound of all variables
+problem.varmax = problem.varmax_cont + problem.varmax_disc # upper bound of all variables
 
 # GA PARAMETERS
 params = structure()
@@ -39,7 +46,8 @@ params.npop = 300 # size of initial population
 params.pc = 3 # proportion of children to main population
 params.beta = 0.3 # Boltzman constant for parent selection probability
 params.gamma = 0.8 # parameter for crossover
-params.mu = 0.2 # mutation threshold
+params.mu_cont = 0.3 # mutation threshold for continuous variables
+params.mu_disc = 0.4 # mutation threshold for discrete variables
 params.sigma = 0.3 # standard deviation of gene mutation 
 
 

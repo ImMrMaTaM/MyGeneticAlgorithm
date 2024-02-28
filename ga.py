@@ -1,16 +1,25 @@
 import numpy as np
 from ypstruct import structure
-from gaCore import constraints_violation, validity, worst_valid_cost_funct, fitness_funct, prob_Boltzmann, roulette_wheel_selection, crossover, mutate, apply_bound
+from gaCore import constraints_violation, validity, worst_valid_cost_funct, fitness_funct, prob_Boltzmann, roulette_wheel_selection, crossover, mutation, apply_bound
 
 def run(problem, params):
 
     # EXTRACT PROBLEM INFORMATION 
     costfunc = problem.costfunc
-    nvar = problem.nvar
-    varmin = problem.varmin
-    varmax = problem.varmax
     constraints = problem.constraints
     constraints_toll = problem.constraints_toll
+    nvar_cont = problem.nvar_cont
+    nvar_disc = problem.nvar_disc
+    nvar = problem.nvar
+    index_cont = problem.index_cont
+    index_disc = problem.index_disc
+    varmin_cont = problem.varmin_cont
+    varmax_cont = problem.varmax_cont
+    varmin_disc = problem.varmin_disc
+    varmax_disc = problem.varmax_disc
+    varmin = problem.varmin
+    varmax = problem.varmax
+
 
     # EXTRACT PROBLEM PARAMETERS
     maxrep = params.maxrep
@@ -25,7 +34,8 @@ def run(problem, params):
     pc = params.pc
     nc = int(np.round(pc*npop/2)*2) # number of children (always even)
     gamma = params.gamma
-    mu = params.mu
+    mu_cont = params.mu_cont
+    mu_disc = params.mu_disc
     sigma = params.sigma
 
     # INDIVIDUAL'S TEMPLATE
@@ -51,13 +61,13 @@ def run(problem, params):
         bestsol = empty_individual.deepcopy() # best individual found at current iteration
         bestpos = np.empty([maxit,nvar]) # array with best position found at each iteration
 
-
         # INITIALIZE RANDOM POPULATION
         pop = empty_individual.repeat(npop)
         worst_valid_cost = 0
 
         for i in range(npop):
-            pop[i].position = np.random.uniform(varmin, varmax, nvar) # fill population with npop random individuals
+            pop[i].position = np.random.uniform(varmin_cont, varmax_cont, nvar_cont) # fill population with continuous variables
+            pop[i].position = np.append(pop[i].position, np.random.randint(varmin_disc, varmax_disc, nvar_disc)) # fill population with discrete variables
             pop[i].violation = constraints_violation(pop[i].position, constraints)
             pop[i].cost = costfunc(pop[i].position)
             pop[i].valid = validity(pop[i].violation, constraints_toll)
@@ -93,16 +103,16 @@ def run(problem, params):
                 p2 = pop[roulette_wheel_selection(probs)]
             
                 # 4 CROSSOVER
-                c1, c2 = crossover(p1, p2, gamma)
+                c1, c2 = crossover(p1,p2,index_cont,index_disc,gamma)
 
                 # 5 MUTATION
-                c1 = mutate(c1, mu, sigma)
-                c2 = mutate(c2, mu, sigma)
+                c1 = mutation(c1, mu_cont, sigma, mu_disc, varmin_disc, varmax_disc, index_cont, index_disc)
+                c2 = mutation(c2, mu_cont, sigma, mu_disc, varmin_disc, varmax_disc, index_cont, index_disc)
 
                 ############################### MODIFY HERE #################################### 
                 # 6 BOUNDARIES
-                apply_bound(c1, varmin, varmax)
-                apply_bound(c2, varmin, varmax)
+                apply_bound(c1, varmin_cont, varmax_cont, index_cont, index_disc)
+                apply_bound(c2, varmin_cont, varmax_cont, index_cont, index_disc)
                 ############################### MODIFY HERE ####################################
 
 

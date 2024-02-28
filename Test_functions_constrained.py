@@ -1,6 +1,6 @@
 import numpy as np
 # When dealing with an equality constraint: write it as two inequality constraints:
-eq_constraint_toll = 0.05
+eq_constraint_toll = 0.01
 # h(x) = 0  ->  h(x) - 0.01 <= 0 and -0.01 - h(x) <= 0
 
 
