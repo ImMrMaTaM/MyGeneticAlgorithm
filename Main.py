@@ -9,19 +9,19 @@ import Test_functions_constrained as tfc
 
 # COST FUNCTION TO MINIMIZE
 def cost(x): 
-    return tfc.G10_function(x) 
+    return tfc.G18_function(x) 
 
 # CONSTRAINTS (form x^2+y^2-a <= 0)
 def constraint_functions(x):
-    return tfc.G10_constraints(x)
+    return tfc.G18_constraints(x)
 
 
 # PROBLEM DEFINITION
 problem = structure() # define the problem as a structure variable
 problem.costfunc = cost # define the problem's cost function
-problem.nvar = tfc.nvar_G10 # define number of variables in search space
-problem.varmin = tfc.varmin_G10 # lower bound of variables
-problem.varmax = tfc.varmax_G10 # upper bound of variables
+problem.nvar = tfc.nvar_G18 # define number of variables in search space
+problem.varmin = tfc.varmin_G18 # lower bound of variables
+problem.varmax = tfc.varmax_G18 # upper bound of variables
 problem.constraints = constraint_functions # define the problem's nonlinear constraints
 problem.constraints_toll = 1e-10 # define the problem's constraints tollerance
 

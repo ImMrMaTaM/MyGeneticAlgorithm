@@ -1,6 +1,6 @@
 import numpy as np
 # When dealing with an equality constraint: write it as two inequality constraints:
-eq_constraint_toll = 0.01
+eq_constraint_toll = 0.05
 # h(x) = 0  ->  h(x) - 0.01 <= 0 and -0.01 - h(x) <= 0
 
 
@@ -228,3 +228,52 @@ def G13_constraints(x):
 nvar_G13 = 5
 varmin_G13 = [-2.3, -2.3, -3.2, -3.2, -3.2]
 varmax_G13 = [2.3, 2.3, 3.2, 3.2, 3.2]
+
+# NO
+
+########################################### G14 ###########################################
+
+
+########################################### G15 ###########################################
+def G15_function(x):
+    return 1000 - x[0]**2 - 2*x[1]**2 - x[2]**2 - x[0]*x[1] - x[0]*x[2]
+
+def G15_constraints(x):
+    const1 = x[0]**2 + x[1]**2 + x[2]**2 - 25 - eq_constraint_toll
+    const2 = -x[0]**2 - x[1]**2 - x[2]**2 + 25 - eq_constraint_toll
+    const3 = 8*x[0] + 14*x[1] + 7*x[2] - 56 - eq_constraint_toll
+    const4 = -8*x[0] - 14*x[1] - 7*x[2] + 56 - eq_constraint_toll
+    return const1, const2, const3 ,const4
+
+nvar_G15 = 3
+varmin_G15 = [0,0,0]
+varmax_G15 = [10,10,10]
+
+# NO
+
+########################################### G18 ###########################################
+def G18_function(x):
+    return -0.5*(x[0]*x[3] - x[1]*x[2] + x[2]*x[8] - x[4]*x[8] + x[4]*x[7] - x[5]*x[6]) 
+
+def G18_constraints(x):
+    const1 = x[2]**2 + x[3]**2 - 1 
+    const2 = x[8]**2 - 1
+    const3 = x[4]**2 + x[5]**2 - 1
+    const4 = x[0]**2 + (x[1]-x[8])**2 - 1
+    const5 = (x[0]-x[4])**2 + (x[1]-x[5])**2 - 1
+    const6 = (x[0]-x[6])**2 + (x[1]-x[7])**2 - 1
+    const7 = (x[2]-x[4])**2 + (x[3]-x[5])**2 - 1
+    const8 = (x[2]-x[6])**2 + (x[3]-x[7])**2 - 1
+    const9 = x[6]**2 + (x[7]-x[8])**2 - 1
+    const10 = x[1]*x[2] - x[0]*x[3]
+    const11 = -x[2]*x[8] 
+    const12 = x[4]*x[8]
+    const13 = x[5]*x[6] - x[4]*x[7]
+    return const1, const2, const3 ,const4, const5, const6, const7, const8, const9, const10, const11, const12, const13
+
+nvar_G18 = 9
+varmin_G18 = [-10, -10, -10, -10, -10, -10, -10, -10, 0]
+varmax_G18 = [10, 10, 10, 10, 10, 10, 10, 10, 20]
+
+# YES
+
