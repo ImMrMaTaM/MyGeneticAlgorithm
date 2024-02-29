@@ -1,22 +1,44 @@
+"""
+This is the code to be run in order to solve the optimization problem using the Genetic Algorithm (GA)
+implemented in the ga.py file.
+"""
+
+# Import libraries
+
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator
 from ypstruct import structure
+
+# Import other files
+
 import ga
 import Test_functions_constrained as tfc
-################################################################################
 
-# COST FUNCTION TO MINIMIZE
+# Commands for LaTeX style plots
+
+matplotlib.rcParams['mathtext.fontset'] = 'cm' # 'cm' or 'stix'
+matplotlib.rcParams['font.family'] = 'STIXGeneral'
+
+matplotlib.rc('xtick', labelsize = 15)
+matplotlib.rc('ytick', labelsize = 15)
+
+# Cost function to be minimized
+
 def cost_function(x): 
-    return -(100 - (x[0]-5)**2 - (x[1]-5)**2 - (x[2]-5)**2)/100
+    return -(100 - (x[0] - 5) ** 2 - (x[1] - 5) ** 2 - (x[2] - 5) ** 2) / 100
 
-# CONSTRAINTS (form x^2+y^2-a <= 0)
+# Constraints (form x ^ 2 + y ^ 2 - a <= 0)
+
 def constraint_functions(x):
-    const = (x[0]-x[3])**2 + (x[1]-x[4])**2 + (x[2]-x[5])**2 - 0.0625
+    
+    const = (x[0] - x[3]) ** 2 + (x[1] - x[4]) ** 2 + (x[2] - x[5]) ** 2 - 0.0625
     return const
 
-# PROBLEM DEFINITION
+# Define the struct of the problem and the parameters
+
 problem = structure() # define the problem as a structure variable
 problem.costfunc = cost_function # define the problem's cost function
 problem.constraints = constraint_functions # define the problem's nonlinear constraints
@@ -33,7 +55,8 @@ problem.varmax_disc = [9, 9, 9] # upper bound of discrete variables
 problem.varmin = problem.varmin_cont + problem.varmin_disc # lower bound of all variables
 problem.varmax = problem.varmax_cont + problem.varmax_disc # upper bound of all variables
 
-# GA PARAMETERS
+# Parameters for the genetic algorithm
+
 params = structure()
 params.maxrep = 1 # maximum number of repetitions
 params.stoprep = 3 # number of same solutions to stop repeating 
@@ -50,30 +73,44 @@ params.mu_cont = 0.3 # mutation threshold for continuous variables
 params.mu_disc = 0.4 # mutation threshold for discrete variables
 params.sigma = 0.3 # standard deviation of gene mutation 
 
+"""
+Run the genetic algorithm by calling the script ga.py and passing the problem and parameters as arguments.
+"""
 
-# RUN GA
 out = ga.run(problem, params)
 
-#################################### PLOT RESULTS ####################################
+"""
+Plot the results of the genetic algorithm.
+"""
 
-best = np.inf
-j = 0
+best = np.inf # Comparison value
+j = 0 # Initialize the counter
+
+# Display the information about the solutions
 
 for i in range(out.n_rep):
-    print("\nSolution {} has position: {} and fitness {}".format(i+1,out.POS[i],out.FITNESS[i]))
-    if out.FITNESS[i]<best:
+    
+    print("\nSolution {} has position: {} and fitness {}".format(i + 1, out.POS[i], out.FITNESS[i]))
+    if out.FITNESS[i] < best:
+        
        best = out.FITNESS[i]
+       
     j = i
-print("\n\n THE best solution found was number {} with position: {} and fitness: {}".format(j+1,out.POS[j],out.FITNESS[j]))
+    
+print("\n\n THE best solution found was number {} with position: {} and fitness: {}".format(j + 1, out.POS[j], out.FITNESS[j]))
 
-# COST - ITERATION
-plt.figure()
+# Plot cost - iteration
+
+plt.figure(figsize = [8, 6])
+
 for k in range (out.n_rep):
-    plt.plot(out.IT[:,k][out.IT[:,k] != 0] , out.fitness[:,k][0:np.shape(out.IT[:,k][out.IT[:,k] != 0])[0]], label = "Repetition {}".format(k+1))
+    
+    plt.plot(out.IT[:, k][out.IT[:, k] != 0] , out.fitness[:, k][0 : np.shape(out.IT[:, k][out.IT[:, k] != 0])[0]], 
+             label = "Repetition {}".format(k + 1))
 
-plt.xlabel('Number of iterations')
-plt.ylabel('Best Fitness value')
-plt.title('Genetic Algorithm (GA)')
+plt.xlabel('Number of iterations', fontsize = 15)
+plt.ylabel('Best Fitness value', fontsize = 15)
+plt.title('Genetic Algorithm (GA)', fontsize = 20)
 plt.grid(True)
 plt.legend()
 
