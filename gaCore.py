@@ -52,7 +52,7 @@ def fitness_funct(cost, violation, valid, worst_valid_cost):
 
 
 
-""""
+"""
 # CALCULATE FITNESS
 def fitness(violation, cost, violation_tol):
     if violation <= violation_tol:
