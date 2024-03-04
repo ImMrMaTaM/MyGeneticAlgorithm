@@ -50,8 +50,6 @@ def fitness_funct(cost, violation, valid, worst_valid_cost):
 
 
 
-
-
 """
 # CALCULATE FITNESS
 def fitness(violation, cost, violation_tol):
@@ -59,17 +57,6 @@ def fitness(violation, cost, violation_tol):
         fitness = cost
 
     else:
-
-
-
-
-
-    
-
-
-
-
-
 
     def population_fitness(violation, obj_val, tol=1e-4):
     n = len(violation)
@@ -131,28 +118,66 @@ def crossover(p1,p2,index_cont,index_disc,gamma):
     c2.position = np.concatenate((c2_cont,c2_disc))
     return c1, c2
 
+# ADAPTIVE MUTATION
+def adaptive_mutation(x, mu_cont, sigma, mu_disc, it_check, adaptmut_it):
+
+    if x.valid == False: # if the best individual is not valid, increase mutation range and rate
+        mu_cont = mu_cont*1.05
+        mu_disc = mu_disc*1.05
+        sigma = sigma*1.05
+        if mu_cont >= 1:
+            mu_cont = 1
+        if mu_disc >= 1:
+            mu_disc = 1
+        if sigma >= 10:
+            sigma = 10
+    
+    else:
+        if it_check >= adaptmut_it:
+            sigma = sigma*0.95
+            mu_cont = mu_cont*1.05
+            mu_disc = mu_disc*1.05
+            if mu_cont >= 0.5:
+                mu_cont = 0.5
+            if mu_disc >= 0.5:
+                mu_disc = 0.5
+            if sigma <= 0.1:
+                sigma = 0.1
+        else:
+            mu_cont = mu_cont
+            sigma = sigma
+            mu_disc = mu_disc
+    return mu_cont, sigma, mu_disc
+
+
+
 # GAUSSIAN MUTATION (for continuous variables)
-def gaussian_mutation(x, mu_cont, sigma):
+def gaussian_mutation(x, mu, sigma):
     y = x
-    flag = np.random.rand(np.size(x)) <= mu_cont
+    flag = np.random.rand(np.size(x)) <= mu
     ind = np.nonzero(flag)
     np.put(y,ind,np.take(y,ind)+sigma*np.random.randn(np.size(ind)))
     return y
 
 # RANDOM MUTATION (for discrete variables)
-def random_mutation(x, mu_disc, varmin_disc, varmax_disc):
+def random_mutation(x, mu, varmin, varmax):
     y = x
-    flag = np.random.rand(np.size(y)) <= mu_disc
+    flag = np.random.rand(np.size(y)) <= mu
     ind = np.nonzero(flag)
-    np.put(y,ind,np.take(np.random.randint(varmin_disc,varmax_disc), ind))
+    np.put(y,ind,np.take(np.random.randint(varmin,varmax), ind))
     return y
     
 # MUTATION
-def mutation (x, mu_cont, sigma, mu_disc, varmin_disc, varmax_disc, index_cont, index_disc):
+def mutation (x, mu_cont, sigma, mu_disc, varmin_cont, varmax_cont, varmin_disc, varmax_disc, index_cont, index_disc):
     y = x.deepcopy()
-    y_cont = gaussian_mutation(np.take(x.position, index_cont), mu_cont, sigma)
-    y_disc = random_mutation(np.take(x.position, index_disc), mu_disc, varmin_disc, varmax_disc)
-    y.position = np.concatenate((y_cont, y_disc))
+    if x.valid == False:
+        y_cont = random_mutation(np.take(x.position, index_cont), mu_cont, varmin_cont, varmax_cont)
+        y_disc = random_mutation(np.take(x.position, index_disc), mu_disc, varmin_disc, varmax_disc)
+        y.position = np.concatenate((y_cont, y_disc))
+    else:
+        y_cont = gaussian_mutation(np.take(x.position, index_cont), mu_cont, sigma)
+        y_disc = random_mutation(np.take(x.position, index_disc), mu_disc, varmin_disc, varmax_disc)
+        y.position = np.concatenate((y_cont, y_disc))
     return y
 
 # BOUNDARIES (for continuous variables)

@@ -2,7 +2,7 @@
 
 import numpy as np
 from ypstruct import structure
-from gaCore import constraints_violation, validity, worst_valid_cost_funct, fitness_funct, prob_Boltzmann, roulette_wheel_selection, crossover, mutation, apply_bound
+from gaCore import constraints_violation, validity, worst_valid_cost_funct, fitness_funct, prob_Boltzmann, roulette_wheel_selection, crossover, adaptive_mutation, mutation, apply_bound
 
 def run(problem, params):
 
@@ -19,8 +19,6 @@ def run(problem, params):
     varmax_cont = problem.varmax_cont
     varmin_disc = problem.varmin_disc
     varmax_disc = problem.varmax_disc
-    varmin = problem.varmin
-    varmax = problem.varmax
 
 
     # EXTRACT PROBLEM PARAMETERS
@@ -36,6 +34,7 @@ def run(problem, params):
     pc = params.pc
     nc = int(np.round(pc*npop/2)*2) # number of children (always even)
     gamma = params.gamma
+    adaptmut_it = params.adaptmut_it
     mu_cont = params.mu_cont
     mu_disc = params.mu_disc
     sigma = params.sigma
@@ -55,6 +54,8 @@ def run(problem, params):
     IT = np.zeros([maxit, maxrep]) # array with number of iterations performed at each repetition
     n_rep = 0 # number of performed repetitions
 
+    worst_valid_cost = 0
+
 
     ############################################## REPETITIONS ##############################################
     for rep in range(maxrep):
@@ -65,7 +66,10 @@ def run(problem, params):
 
         # INITIALIZE RANDOM POPULATION
         pop = empty_individual.repeat(npop)
-        worst_valid_cost = 0
+        
+        mu_cont = params.mu_cont
+        mu_disc = params.mu_disc
+        sigma = params.sigma
 
         for i in range(npop):
             pop[i].position = np.random.uniform(varmin_cont, varmax_cont, nvar_cont) # fill population with continuous variables
@@ -77,6 +81,7 @@ def run(problem, params):
         for j in range(npop):
             worst_valid_cost = worst_valid_cost_funct(worst_valid_cost, pop[j].valid, pop[j].cost)
             pop[j].fitness = fitness_funct(pop[j].cost, pop[j].violation, pop[j].valid, worst_valid_cost)
+        avg_fitness = np.mean([x.fitness for x in pop])
     
         # INITIALIZE ITERATION QUITTER
         it_check = 0
@@ -108,8 +113,8 @@ def run(problem, params):
                 c1, c2 = crossover(p1,p2,index_cont,index_disc,gamma)
 
                 # 5 MUTATION
-                c1 = mutation(c1, mu_cont, sigma, mu_disc, varmin_disc, varmax_disc, index_cont, index_disc)
-                c2 = mutation(c2, mu_cont, sigma, mu_disc, varmin_disc, varmax_disc, index_cont, index_disc)
+                c1 = mutation(c1, mu_cont, sigma, mu_disc, varmin_cont, varmax_cont, varmin_disc, varmax_disc, index_cont, index_disc)
+                c2 = mutation(c2, mu_cont, sigma, mu_disc, varmin_cont, varmax_cont, varmin_disc, varmax_disc, index_cont, index_disc)
 
                 ############################### MODIFY HERE #################################### 
                 # 6 BOUNDARIES
@@ -143,6 +148,7 @@ def run(problem, params):
             # SELECT
             pop = pop[0:npop]
 
+
             # STORE BEST SOLUTION
             bestsol = pop[0].deepcopy() # update best individual
             bestpos[it] = bestsol.position
@@ -150,8 +156,8 @@ def run(problem, params):
             IT[it,rep] = it
 
             # PRINT ITERATION'S INFORMATIONS (# ITERATION AND BEST COST)
-            print(worst_valid_cost)
-            print("Iteration {}:  Best Fitness value = {}  Best Position = {}  Valid: {}".format(it, bestsol.fitness, bestsol.position, bestsol.valid))
+            print("\nIteration {}:  Best Fitness = {}  Position = {}  Valid: {}".format(it, bestsol.fitness, bestsol.position, bestsol.valid))
+            print("Same solution since {} iterations, mu = {}  sigma = {}".format(it_check, mu_cont, sigma))
 
             # CHECK FOR OPTIMUM REPETITION 
             
@@ -162,6 +168,10 @@ def run(problem, params):
                 it_check += 1
             else: 
                 it_check = 0
+
+            # ADJUST MUTATION
+            avg_fitness = np.mean([x.fitness for x in pop])
+            mu_cont, sigma, mu_disc = adaptive_mutation(bestsol, mu_cont, sigma, mu_disc, it_check, adaptmut_it)
     
             if it_check == stopit:
                 break
@@ -173,7 +183,6 @@ def run(problem, params):
         if n == stoprep:
             break
 
-    print(pop)
     ################################################################################
 
     # OUTPUT

@@ -42,11 +42,16 @@ def G02_constraints(x):
     const2 = np.sum(x) - 7.5*20
     return const1, const2
 
-nvar_G02 = 20
-varmin_G02 = 0
-varmax_G02 = 10
+nvar_cont_G02 = 20
+nvar_disc_G02 = 0
+index_cont_G02 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+index_disc_G02 = []
+varmin_cont_G02 = 0
+varmax_cont_G02 = 10
+varmin_disc_G02 = 0
+varmax_disc_G02 = 1
 
-# NO (very difficult to find the global minimum)
+# YES
 
 ########################################### G03 ###########################################     
 def G03_function(x):
@@ -113,11 +118,16 @@ def G06_constraints(x):
     const2 = (x[0]-6)**2 + (x[1]-5)**2 - 82.81
     return const1, const2
 
-nvar_G06 = 2
-varmin_G06 = [13,0]
-varmax_G06 = [100,100]
+nvar_cont_G06 = 2
+nvar_disc_G06 = 0
+index_cont_G06 = [0, 1]
+index_disc_G06 = []
+varmin_cont_G06 = [13,0]
+varmax_cont_G06 = [100,100]
+varmin_disc_G06 = 0
+varmax_disc_G06 = 1
 
-# YES (could have better final convergence)
+# YES 
 
 ########################################### G07 ###########################################
 def G07_function(x):
@@ -140,7 +150,7 @@ nvar_G07 = 10
 varmin_G07 = -10
 varmax_G07 = 10
 
-# YES (could have better final convergence)
+# YES 
 
 ########################################### G08 ###########################################
 def G08_function(x):
@@ -173,7 +183,7 @@ nvar_G09 = 7
 varmin_G09 = -10
 varmax_G09 = 10
 
-# YES (could have better final convergence)
+# YES 
 
 ########################################### G10 ###########################################
 def G10_function(x):
@@ -188,9 +198,14 @@ def G10_constraints(x):
     const6 = -x[2]*x[7] + 1250000 + x[2]*x[4] - 2500*x[4]
     return const1, const2, const3, const4, const5, const6
 
-nvar_G10 = 8
-varmin_G10 = [100,1000,1000,10,10,10,10,10]
-varmax_G10 = [10000,10000,10000,1000,1000,1000,1000,1000]
+nvar_cont_G10 = 8
+nvar_disc_G10 = 0
+index_cont_G10 = [0, 1, 2, 3, 4, 5, 6, 7]
+index_disc_G10 = []
+varmin_cont_G10 = [100,1000,1000,10,10,10,10,10]
+varmax_cont_G10 = [10000,10000,10000,1000,1000,1000,1000,1000]
+varmin_disc_G10 = 0
+varmax_disc_G10 = 1
 
 # NO (can't find feasible region)
 
