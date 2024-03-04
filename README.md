@@ -9,7 +9,7 @@ This project aims at finding the global minimum of multi-variable functions usin
 - __Multi-variable__: $\vec{x}$ can contain any number of continuous and/or discrete variables. The type and number of variables must be specified.
 - __Constrained__: any number of inequality constraints in the form $g_i(\vec{x})\leq0$ can be added.
 <br />
-Equality constraints such as $h(\vec{x})=0$ can be imitated using two inequality constraints as: $g_i(\vec{x})\leq0\leq g_j(\vec{x})$
+Equality constraints such as $h(\vec{x})=0$ can be imitated using two inequality constraints as: $ g_i(\vec{x}) \leq 0 \leq g_j(\vec{x}) $
 - __Bounded__: a lower and upper boundary must be specified for each variable.
 
 ### Genetic algorithm characteristics
@@ -41,10 +41,22 @@ Equality constraints such as $h(\vec{x})=0$ can be imitated using two inequality
     Parameter $\alpha_i$ is randomly picked for each gene: $\alpha_i \in\left[-\gamma,1+\gamma\right]$
     <br />
     $\gamma$ is a parameter appropriately tuned by the user. As $\gamma$ is selected to be larger, the children's genes will deviate further away from those of their parents. 
-
      <br />
+    Whole arithmetic recombination can't be performed on discrete variables because multiplying them by $\alpha_i$ would turn them continuous.
 
-    - _Uniform crossover_ (discrete): 
+    - _Uniform crossover_ (discrete): a random vector the same size as the parents is generated containing only 0 and 1. e.g. $\:\vec{v}=[0,1,1,0,0,1,...]$
+      <br />
+      $$\begin{array}{lcl} \vec{p_1} = \left\{ p_{11},p_{12},... \right\}\\\vec{p_2} = \left\{ p_{21},p_{22},...   \right\}\end{array} \to \begin{array}{lcl} \vec{c_1} = \vec{v} \cdot \vec{p_1} + (1-\vec{v}) \cdot \vec{p_2}\\\vec{c_2} = (1-\vec{v}) \cdot \vec{p_1}+\vec{v} \cdot \vec{p_2} \end{array}$$ 
+      <br />
+      This allows to maintain diversity while keeping the same variables throughout the generations.
+      <br />
+
+- __Mutation__: mutation is also performed differently for continuous and discrete variables.
+       
+    
+
+      
+
     
 
 
