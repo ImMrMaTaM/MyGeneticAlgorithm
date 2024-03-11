@@ -260,9 +260,14 @@ def G15_constraints(x):
     const4 = -8*x[0] - 14*x[1] - 7*x[2] + 56 - eq_constraint_toll
     return const1, const2, const3 ,const4
 
-nvar_G15 = 3
-varmin_G15 = [0,0,0]
-varmax_G15 = [10,10,10]
+nvar_cont_G15 = 3
+nvar_disc_G15 = 0
+index_cont_G15 = [0, 1, 2]
+index_disc_G15 = []
+varmin_cont_G15 = [0,0,0]
+varmax_cont_G15 = [10,10,10]
+varmin_disc_G15 = 0
+varmax_disc_G15 = 1
 
 # NO
 

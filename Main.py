@@ -1,6 +1,7 @@
 """
 This is the code to be run in order to solve the optimization problem using the Genetic Algorithm (GA)
 implemented in the ga.py file.
+
 """
 
 # Import libraries
@@ -30,12 +31,12 @@ matplotlib.rc('ytick', labelsize = 15)
 def cost_function(x): 
     return tfc.G10_function(x)
 
-# Constraints (form x ^ 2 + y ^ 2 - a <= 0)
+# Inequality constraints (form x ^ 2 + y ^ 2 - a <= 0)
 
 def constraint_functions(x):
     return tfc.G10_constraints(x)
 
-# Define the struct of the problem and the parameters
+# Define the structure of the problem 
 
 problem = structure() # define the problem as a structure variable
 problem.costfunc = cost_function # define the problem's cost function
@@ -51,17 +52,17 @@ problem.varmax_cont = tfc.varmax_cont_G10 # upper bound of continuous variables
 problem.varmin_disc = tfc.varmin_disc_G10 # lower bound of discrete variables
 problem.varmax_disc = tfc.varmax_disc_G10 # upper bound of discrete variables
 
-# Parameters for the genetic algorithm
+# Define parameters for the genetic algorithm
 
 params = structure()
-params.maxrep = 10 # maximum number of repetitions
+params.maxrep = 5 # maximum number of repetitions
 params.stoprep = 3 # number of same solutions to stop repeating 
 params.digits = 6 # accuracy of digits for a position being the same
 params.maxit = 500 # maximum number of iterations 
 params.stopit = 100 # number of repetitions of same optimum point before breaking
 params.tollfitness = 1e-2 # fitness difference tollerance for breaking iterations
 params.tollpos = 1e-2 # position difference tollerance for breaking iterations
-params.npop = 300 # size of initial population
+params.npop = 200 # size of initial population
 params.pc = 3 # proportion of children to main population
 params.beta = 0.3 # Boltzman constant for parent selection probability
 params.gamma = 0.8 # parameter for crossover

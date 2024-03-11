@@ -33,6 +33,7 @@ Equality constraints such as $h(\vec{x})=0$ can be imitated using two inequality
     All probabilities $\left( \Pi_1,\Pi_2,...,\Pi_n \right)$ are turned into cumulative probabilities  $\left( \Pi_{c,1},\Pi_{c,2},...,\Pi_{c,n}=1 \right)$
     <br />
     A number $r\in[0,1]$ is randomly picked and will fall into the cumulative probability of a certain individual. That individual is the selected parent.
+    
 
 - __Crossover__: crossover is performed differently for continuous and discrete variables.
     - _Whole arithmetic recombination_ (continuous): $$\begin{array}{lcl} \vec{p_1} = \left\{ p_{11},p_{12},... \right\}\\\vec{p_2} = \left\{ p_{21},p_{22},...   \right\}\end{array} \to \begin{array}{lcl} c_{1i} = \alpha_i p_{1i}+(1-\alpha_i)p_{2i}\\c_{2i} = (1-\alpha_i) p_{1i}+\alpha_i p_{2i} \end{array}$$ 
@@ -52,6 +53,40 @@ Equality constraints such as $h(\vec{x})=0$ can be imitated using two inequality
       <br />
 
 - __Mutation__: mutation is also performed differently for continuous and discrete variables.
+<br />
+  Each individual $\vec{x}$ has a certain probability of mutating its genes $\mu$.
+  <br />
+  A random vector the size of $\vec{x}$ is generated with values between $0$ and $1$.
+  <br />
+  All indices of elements in the random vector with value $<\mu$ are recorded and will be the elements that will undergo mutation in $\vec{x}$
+
+  - _Gaussian mutation_ (continuous): 
+
+    $$ x_i \to x_i+\sigma Z \:\:\text{with}\:\: Z\sim \mathcal{N}(0,1)$$
+  
+    Each mutating gene varies following a Gaussian distribution, driven by the standard deviation $\sigma$
+
+  - _Random mutation_ (discrete):
+    $$ x_i \to y_i \:\:\text{with}\:\: y_i \in \left\{x_{i,min}\: ,\:...\:,\:x_{i,max} \right\} $$
+    This way each discrete gene is surely kept within its boundaries. 
+
+  <br />
+  Notice that mutation is adaptive, and varies depending on the current state of the GA.
+  
+  - If the individual is invalid continuous variables mutate randomly, similarly to discrete variables.
+  <br />
+  This way the muation search space is much more s
+
+
+
+- __Boundaries enforcement__: continuous variables could step out of the boundaries due to crossover or mutation. To enforce those variables to stay within the boundaries the following operations are performed:
+$$x_i=\max\left( x_i\:,\:x_{i,min}   \right)\:\: \text{to enforce lower bounds}$$
+$$x_i=\min\left( x_i\:,\:x_{i,max}   \right)\:\: \text{to enforce upper bounds}$$
+
+  
+  
+
+
        
     
 
