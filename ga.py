@@ -75,8 +75,8 @@ def run(problem, params):
             pop[i].position = np.random.uniform(varmin_cont, varmax_cont, nvar_cont) # fill population with continuous variables
             pop[i].position = np.append(pop[i].position, np.random.randint(varmin_disc, varmax_disc, nvar_disc)) # fill population with discrete variables
             pop[i].violation = constraints_violation(pop[i].position, constraints)
-            pop[i].cost = costfunc(pop[i].position)
             pop[i].valid = validity(pop[i].violation, constraints_toll)
+            pop[i].cost = costfunc(pop[i].position)
         
         for j in range(npop):
             worst_valid_cost = worst_valid_cost_funct(worst_valid_cost, pop[j].valid, pop[j].cost)
@@ -171,7 +171,7 @@ def run(problem, params):
 
             # ADJUST MUTATION
             avg_fitness = np.mean([x.fitness for x in pop])
-            mu_cont, sigma, mu_disc = adaptive_mutation(bestsol, mu_cont, sigma, mu_disc, it_check, adaptmut_it)
+            mu_cont, sigma, mu_disc = adaptive_mutation(bestsol, mu_cont, params.mu_cont, sigma, params.sigma, mu_disc, params.mu_disc, it_check, adaptmut_it)
     
             if it_check == stopit:
                 break

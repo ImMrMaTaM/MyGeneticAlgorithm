@@ -25,6 +25,8 @@ Equality constraints such as $h(\vec{x})=0$ can be imitated using two inequality
 
     This ensures that all valid indivuals have a lower fitness value than all invalid ones.
 
+    <br />
+
 - __Parents selection__: each individual $k$ has a certain probability $\Pi_k$ of being selected as a parent among the $n$ individuals of the population. This probability is calculated using __Boltzmann model__: $$\Pi_k=\exp\left(-\beta \frac {fit(\vec{x_k})}{\frac{1}{n}\sum_{i=1}^{n} fit(\vec{x_i})}\right)$$
 
     With $\beta$ being a tunable parameter. Note that:  $$if: \begin{cases}   \beta\to 0\:\Longrightarrow\:\Pi_k=\frac{1}{n}\:\forall k \\\beta\to\infty\:\Longrightarrow\: \Pi_k=\begin{cases}1\:\: \text{for best individual} \\0\:\: \text{otherwise}   \end{cases}  \end{cases}$$
@@ -33,7 +35,8 @@ Equality constraints such as $h(\vec{x})=0$ can be imitated using two inequality
     All probabilities $\left( \Pi_1,\Pi_2,...,\Pi_n \right)$ are turned into cumulative probabilities  $\left( \Pi_{c,1},\Pi_{c,2},...,\Pi_{c,n}=1 \right)$
     <br />
     A number $r\in[0,1]$ is randomly picked and will fall into the cumulative probability of a certain individual. That individual is the selected parent.
-    
+
+    <br />
 
 - __Crossover__: crossover is performed differently for continuous and discrete variables.
     - _Whole arithmetic recombination_ (continuous): $$\begin{array}{lcl} \vec{p_1} = \left\{ p_{11},p_{12},... \right\}\\\vec{p_2} = \left\{ p_{21},p_{22},...   \right\}\end{array} \to \begin{array}{lcl} c_{1i} = \alpha_i p_{1i}+(1-\alpha_i)p_{2i}\\c_{2i} = (1-\alpha_i) p_{1i}+\alpha_i p_{2i} \end{array}$$ 
@@ -50,6 +53,7 @@ Equality constraints such as $h(\vec{x})=0$ can be imitated using two inequality
       $$\begin{array}{lcl} \vec{p_1} = \left\{ p_{11},p_{12},... \right\}\\\vec{p_2} = \left\{ p_{21},p_{22},...   \right\}\end{array} \to \begin{array}{lcl} \vec{c_1} = \vec{v} \cdot \vec{p_1} + (1-\vec{v}) \cdot \vec{p_2}\\\vec{c_2} = (1-\vec{v}) \cdot \vec{p_1}+\vec{v} \cdot \vec{p_2} \end{array}$$ 
       <br />
       This allows to maintain diversity while keeping the same variables throughout the generations.
+
       <br />
 
 - __Mutation__: mutation is also performed differently for continuous and discrete variables.
@@ -72,12 +76,21 @@ Equality constraints such as $h(\vec{x})=0$ can be imitated using two inequality
 
   <br />
   Notice that mutation is adaptive, and varies depending on the current state of the GA.
-  
-  - If the individual is invalid continuous variables mutate randomly, similarly to discrete variables.
+
   <br />
-  This way the muation search space is much more s
 
+  - If the individual is invalid continuous variables mutate randomly, similarly to discrete variables. The mutation rate is also maximized: $\mu=1$ <br />
+  This way the mutation search space is spread evenly and mutations occur much more frequently:it's easier to find feasible region.
+  <br />
 
+  - When a valid solution is found, continuous variables go back at mutating with the Gaussian mutation method and $\mu$ goes back to its original value. 
+  <br />
+
+  - If the same valid solution is being found after several iterations (number of consecutive iterations and tollerance are customizable), then values of $\mu$ and $\sigma$ change.<br /> $\mu$ gradually increases while $\sigma$ gradually decreases (both are bounded).<br />
+  This allows an almost stuck algorithm to increase its searching frequency in the neighbourhood of the best solution found so far in an attempt at unstucking itself. <br />
+  If a new solution is found, $\mu$ and $\sigma$ go back to their original value. 
+
+  <br />
 
 - __Boundaries enforcement__: continuous variables could step out of the boundaries due to crossover or mutation. To enforce those variables to stay within the boundaries the following operations are performed:
 $$x_i=\max\left( x_i\:,\:x_{i,min}   \right)\:\: \text{to enforce lower bounds}$$

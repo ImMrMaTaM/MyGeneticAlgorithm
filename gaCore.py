@@ -51,7 +51,6 @@ def validity(violation, constraints_toll):
         valid = True
     return valid
 
-
 # CALCULATE WORST VALID COST
 """
 This function calculates the worst valid cost found so far.
@@ -218,36 +217,37 @@ def mutation (x, mu_cont, sigma, mu_disc, varmin_cont, varmax_cont, varmin_disc,
 
 
 # ADAPTIVE MUTATION
-def adaptive_mutation(x, mu_cont, sigma, mu_disc, it_check, adaptmut_it):
+def adaptive_mutation(x, mu_cont, mu_cont0, sigma, sigma0, mu_disc, mu_disc0, it_check, adaptmut_it):
 
-    if x.valid == False: # if the best individual is not valid, increase mutation range and rate
-        mu_cont = mu_cont*1.05
-        mu_disc = mu_disc*1.05
-        sigma = sigma*1.05
-        if mu_cont >= 1:
-            mu_cont = 1
-        if mu_disc >= 1:
-            mu_disc = 1
-        if sigma >= 10:
-            sigma = 10
-    
-    else:
-        if it_check >= adaptmut_it:
-            sigma = sigma*0.95
-            mu_cont = mu_cont*1.05
-            mu_disc = mu_disc*1.05
-            if mu_cont >= 0.5:
-                mu_cont = 0.5
-            if mu_disc >= 0.5:
-                mu_disc = 0.5
-            if sigma <= 0.1:
-                sigma = 0.1
-        else:
-            mu_cont = mu_cont
-            sigma = sigma
-            mu_disc = mu_disc
+    if x.valid == False: # if no valid individual is found, max mutation rate
+        mu_cont_new = 1
+        mu_disc_new = 1
+        sigma_new = sigma0
+  
+    else: # if valid individual is found, adapt mutation rate and mutation range based on the current best solution
+        
+        if mu_cont == 1 and mu_disc == 1: # if values are maxed, bring them back to original values
+            mu_cont_new = mu_cont0
+            mu_disc_new = mu_disc0
+            sigma_new = sigma0
 
-    return mu_cont, sigma, mu_disc
+        if it_check >= adaptmut_it: # if same best solution for adaptmut_it iterations, reduce mutation range and increase mutation rate
+            sigma_new = sigma*0.95
+            mu_cont_new = mu_cont*1.05
+            mu_disc_new = mu_disc*1.05
+            if mu_cont_new >= 0.8:
+                mu_cont_new = 0.8
+            if mu_disc_new >= 0.8:
+                mu_disc_new = 0.8
+            if sigma_new <= 0.3:
+                sigma_new = 0.3
+
+        else: # if best solution is changing, mutation range and mutation rate don't change
+            mu_cont_new = mu_cont0
+            sigma_new = sigma0
+            mu_disc_new = mu_disc0
+
+    return mu_cont_new, sigma_new, mu_disc_new
 
 
 ######################## BOUNDARIES ENFORCEMENT #########################
